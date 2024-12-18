@@ -1,20 +1,25 @@
 const mongoose = require("mongoose");
 
 const Registration = new mongoose.Schema({
-  FirstName: String,
-  LastName: String,
-  UserName: String,
-  Email: {
-    type: String, // Specify the data type for the email field
-    required: true, // Ensure the email is required
-    unique: true, // Enforce email uniqueness in the database
-  },
-  Password: {
+  FirstName: { type: String},
+  LastName: { type: String},
+  UserName: { type: String},
+  FamilyName:{type:String},
+
+  Email: { type: String },
+  Password: { type: String},
+  Pincode:{type:String},
+  Country: { type: String },
+  State: { type: String},
+  City: { type: String},
+  status: {
     type: String,
-    required: true, // Ensure the password is required
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
   },
   resetToken: { type: String },
   resetTokenExpiration: { type: Date },
+  
 });
 
 // Register the schema as a model

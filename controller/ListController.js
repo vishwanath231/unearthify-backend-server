@@ -1,149 +1,136 @@
-const Task = require("../model/Task");
+const express = require("express");
+const multer = require("multer");
+const formFamilyMem = require("../model/familymember");
 
-// Handle POST request to add a task
-const todoList = async (req, res) => {
+const fs = require("fs");
+
+
+// Multer Configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"), false);
+  }
+};
+
+const upload = multer({ storage, fileFilter });
+
+// Express Router
+const router = express.Router();
+
+// POST Endpoint: Add a Family Member
+const familyFormMemPost = async (req, res) => {
   try {
     const {
-      employeeName,
-      task,
-      explainAboutTask,
-      date,
-      pendingWork,
-      completedWork,
-      workStatus,
-    } = req.body;
-    // Create a new task instance
-    const newTask = new Task({
-      employeeName,
-      task,
-      explainAboutTask,
-      date,
-      pendingWork,
-      completedWork,
-      workStatus,
-    });
-
-    // Save the task to the database
-    const savedTask = await newTask.save();
-    res
-      .status(200)
-      .json({ message: "Task saved successfully", Data: savedTask });
-  } catch (error) {
-    res.status(500).json({ error: "Error saving task" });
-  }
-};
-
-// task get
-const taskData = async (req, res) => {
-  // console.log("asd");
-  try {
-    const taskDataGet = await Task.find();
-    res.json({
-      data: taskDataGet,
-    });
-  } catch (error) {
-    res.json({
-      Error: error.message,
-    });
-  }
-};
-
-// get data by serial num
-const GetSingleData = async (req, res) => {
-  try {
-    const id = req.params.id; // Fetch _id from request params
-    console.log(id, "id");
-
-    const data = await Task.findById(id); // Use MongoDB _id to fetch the task
-    console.log(data, "data");
-
-    if (!data) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    res.json({
-      data: data,
-    });
-    console.log(data, "data");
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
-  }
-};
-
-// update data by serial num
-
-const updateData = async (req, res) => {
-  try {
-    const { id } = req.params; // Fetch _id from request params
-    const {
-      task,
-      explainAboutTask,
-      date,
-      pendingWork,
-      completedWork,
-      workStatus,
+      name,
+      dob,
+      gender,
+      maritalStatus,
+      education,
+      employmentStatus,
+      contactEmail,
+      contactPhone,
+      occupation,
     } = req.body;
 
-    // Use MongoDB _id to find and update the task
-    const updatedData = await Task.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          task: task,
-          explainAboutTask: explainAboutTask,
-          date: date,
-          pendingWork: pendingWork,
-          completedWork: completedWork,
-          workStatus: workStatus,
-        },
-      },
-      { new: true } // Return the updated document
-    );
-    console.log(updatedData, "update");
+    const image = req.file ? req.file.path : null;
 
-    if (!updatedData) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    const newMember = new formFamilyMem({
+      name,
+      dob,
+      gender,
+      maritalStatus,
+      education,
+      employmentStatus,
+      contactEmail,
+      contactPhone,
+      occupation,
+      image,
+    });
 
-    res.json({ data: updatedData });
+    await newMember.save();
+    res.status(201).json({ data: newMember });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-const deleteNote = async (req, res) => {
+// GET Endpoint: Get All Family Members
+const familyMemGet = async (req, res) => {
   try {
-    const id = req.params.id; // Fetch _id from request params
-    console.log(id, "id");
-
-    // Check if the task exists before deletion
-    const existingTask = await Task.findById(id);
-    console.log(existingTask, "delete id");
-
-    if (!existingTask) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    const deleteGet = await Task.findByIdAndDelete(id); // Delete the task by _id
-    console.log(deleteGet, "deleted id true");
-
-    res.status(200).json({
-      data: deleteGet,
-      message: "Task deleted successfully",
-    });
+    const members = await formFamilyMem.find();
+    res.json({ data: members });
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = {
-  todoList,
-  taskData,
-  updateData,
-  GetSingleData,
-  deleteNote,
+// PUT Endpoint: Update a Family Member
+const familyMemUpdate =async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      dob,
+      gender,
+      maritalStatus,
+      education,
+      employmentStatus,
+      contactEmail,
+      contactPhone,
+      occupation,
+    } = req.body;
+
+    const updateData = {
+      name,
+      dob,
+      gender,
+      maritalStatus,
+      education,
+      employmentStatus,
+      contactEmail,
+      contactPhone,
+      occupation,
+    };
+
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+
+    const updatedMember = await formFamilyMem.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+
+    res.json({ data: updatedMember });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
+
+// DELETE Endpoint: Delete a Family Member
+const familyMemDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const member = await formFamilyMem.findByIdAndDelete(id);
+
+    if (member && member.image) {
+      fs.unlinkSync(member.image);
+    }
+
+    res.json({ message: "Family member deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { familyFormMemPost, familyMemGet, familyMemUpdate, familyMemDelete, upload };

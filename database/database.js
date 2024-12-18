@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const MongoDbOne = "mongodb://localhost:27017/bliss";
+const MongoDbOne = process.env.MONGO_URI
 
 const databaseOne = () => {
   mongoose
