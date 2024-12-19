@@ -4,7 +4,7 @@ const upload = require("../middleware/image"); // Import multer configuration
 const router = express.Router();
 
 // Define routes
-router.post("/familyMemForm", upload.single("image"), controller.familyFormMemPost); // Handle image upload for POST
+router.post("/familyMemForm", upload.single("image"), controller.familyFormMemPost); 
 router.get("/familyMemGet/:id", controller.familyMemGet);
 router.get("/AllFamilyGet",controller.familyMemGetAll)
 router.get("/getById/:id",controller.getFamilyMemberById)
