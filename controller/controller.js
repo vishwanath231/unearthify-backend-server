@@ -247,7 +247,7 @@ const approveRegistration = async (req, res) => {
         to: updatedUser.Email, // Receiver email
         subject: "Registration Approved",
         text: "Dear User",
-        html: `<p>Click to login <a href="${REACT_APP_HOST_BACK}/login">login page</a> ${updatedUser.FirstName},\n\nYour family registration has been approved. Now you can log in to see your family account.\n\nThank you!</p>`,
+        html: `<p>Click to login <a href="${process.env.REACT_APP_HOST_BACK}/login">login page</a> ${updatedUser.FirstName},\n\nYour family registration has been approved. Now you can log in to see your family account.\n\nThank you!</p>`,
       };
       
       await transporter.sendMail(mailOptions);
@@ -264,7 +264,6 @@ const approveRegistration = async (req, res) => {
   }
 };
 // 2. Approve a registration
-console.log(REACT_APP_HOST_BACK,"host env")
 
 const getApprovedUsers = async (req, res) => {
   try {
@@ -285,7 +284,7 @@ const rejectGetAll = async (req, res) => {
     res.status(500).json({ message: "Error fetching rejected users", error });
   }
 };
-console.log(REACT_APP_HOST_BACK,"host env")
+console.log(process.env.REACT_APP_HOST_BACK,"host env")
 
 // 3. Reject a registration
 const rejectRegistration = async (req, res) => {
@@ -378,7 +377,7 @@ const Forgot = async (req, res) => {
       subject: "Password Reset",
       text: "Here is the link to reset your password",
       html: `<p>You requested a password reset</p>
-      <p>Click <a href="${REACT_APP_HOST_BACK}/reset-password/${token}">here</a> to reset your password.</p>`,
+      <p>Click <a href="${process.env.REACT_APP_HOST_BACK}/reset-password/${token}">here</a> to reset your password.</p>`,
     };
 
 
@@ -418,7 +417,7 @@ const Reset = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-console.log(REACT_APP_HOST_BACK,"host env")
+console.log(process.env.REACT_APP_HOST_BACK,"host env")
 
 module.exports = {
   regPost,
