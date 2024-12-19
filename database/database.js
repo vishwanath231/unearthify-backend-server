@@ -19,6 +19,7 @@ const databaseOne = () => {
     })
     .catch((error) => {
       console.error("Error connecting to MongoDB:", error.message);
+      console.error("Detailed error:", error);
       // Optional: Retry logic
       setTimeout(databaseOne, 5000); // Retry connection after 5 seconds
     });

@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Database connection
 database();
-const cors = require('cors');
+
 app.use(cors({ origin: 'https://your-frontend-domain.com' }));
 
 // Routes
