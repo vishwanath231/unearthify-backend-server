@@ -241,14 +241,15 @@ const approveRegistration = async (req, res) => {
 
     if (updatedUser) {
       // Send approval email
+     
       const mailOptions = {
         from: "serviceuse66@gmail.com", // Sender address
         to: updatedUser.Email, // Receiver email
         subject: "Registration Approved",
-        text: "dear User",
-        html: `<p>Click to login <a href="http://localhost:3000/login">login page</a> ${updatedUser.FirstName},\n\nYour family registration has been approved. Now You can log in to see  your family account.\n\nThank you!</p>`,
+        text: "Dear User",
+        html: `<p>Click to login <a href="${process.env.HOST}/login">login page</a> ${updatedUser.FirstName},\n\nYour family registration has been approved. Now you can log in to see your family account.\n\nThank you!</p>`,
       };
-
+      
       await transporter.sendMail(mailOptions);
 
       res.status(200).json({
@@ -263,6 +264,8 @@ const approveRegistration = async (req, res) => {
   }
 };
 // 2. Approve a registration
+console.log(process.env.HOST,"host env")
+
 const getApprovedUsers = async (req, res) => {
   try {
     const approvedUsers = await Registration.find({ status: "approved" });
@@ -282,6 +285,7 @@ const rejectGetAll = async (req, res) => {
     res.status(500).json({ message: "Error fetching rejected users", error });
   }
 };
+console.log(process.env.HOST,"host env")
 
 // 3. Reject a registration
 const rejectRegistration = async (req, res) => {
@@ -374,8 +378,10 @@ const Forgot = async (req, res) => {
       subject: "Password Reset",
       text: "Here is the link to reset your password",
       html: `<p>You requested a password reset</p>
-      <p>Click <a href="http://localhost:3000/reset-password/${token}">here</a> to reset your password.</p>`,
+      <p>Click <a href="${process.env.HOST}/reset-password/${token}">here</a> to reset your password.</p>`,
     };
+
+
 
     await transporter.sendMail(mailOptions);
     res.send("Reset link sent to your email.");
@@ -412,6 +418,7 @@ const Reset = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+console.log(process.env.HOST,"host env")
 
 module.exports = {
   regPost,

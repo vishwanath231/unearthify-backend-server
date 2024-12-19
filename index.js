@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 4000; // Use a different port to avoid conflict
 // Middleware
 app.use(express.json());
 app.use(
-  cors({ origin: "http://localhost:3000", methods: "GET,POST,PUT,DELETE" }) // This is correct
+  cors({ origin: process.env.Host, methods: "GET,POST,PUT,DELETE" }) // This is correct
 );
 
 // Database connection

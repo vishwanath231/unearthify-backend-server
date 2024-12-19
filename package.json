@@ -6,7 +6,7 @@
     "cors": "^2.8.5",
     "country-state-city": "^3.2.1",
     "decrypt": "^0.0.1",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "joi-password-complexity": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
@@ -17,7 +17,7 @@
     "path": "^0.12.7"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node index.js"
   },
   "name": "backend",
   "version": "1.0.0",
