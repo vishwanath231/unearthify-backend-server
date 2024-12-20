@@ -7,6 +7,7 @@ const familyFormMemPost = async (req, res) => {
     const { familyId, name, dob, gender, maritalStatus, education, employmentStatus, contactEmail, contactPhone, occupation } = req.body;
 
     const image = req.file ? `/uploads/${req.file.filename}` : null;  
+    
     console.log(req.file,"file")
     const memberFamily = new formFamilyMem({
       familyId,

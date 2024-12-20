@@ -23,11 +23,16 @@ database();
 
 // Set up CORS to allow requests from the frontend domain (using .env variable)
 
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:3000", // Replace with your frontend's URL
+  methods: ["GET", "POST","UPDATE","DELETE","PUT"],
+}));
+
 
 // Define the routes
 app.use("/api", router);      // Main API routes
-app.use("/api/family", routerFam);  // Family-related API routes
+app.use("/api", routerFam);  // Family-related API routes
 
 // Serve static files from the "uploads" folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
