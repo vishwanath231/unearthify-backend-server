@@ -44,7 +44,9 @@ const regPost = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       Error: error.message,
+      
     });
+    console.log(error,"reg error")
   }
 };
 
@@ -104,9 +106,10 @@ const login = async (req, res) => {
       {
         id: dataUser._id,
       },
-      secretKey,
+      process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
+    console.log(token,"token")
 
     // Return the generated token
     return res.status(200).json({ token });

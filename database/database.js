@@ -10,10 +10,7 @@ const databaseOne = () => {
   }
 
   mongoose
-    .connect(MongoDbOne, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    .connect(MongoDbOne)
     .then(() => {
       console.log("MongoDB database connected successfully");
     })

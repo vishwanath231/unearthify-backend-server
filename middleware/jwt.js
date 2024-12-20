@@ -30,7 +30,7 @@
 // module.exports = authenticateUser;
 const jwt = require("jsonwebtoken");
 const Registration = require("../model/registration");
-const secretKey="familyConnect"
+
 const authenticateUser = async (req, res, next) => {
   const token =
     req.headers.authorization && req.headers.authorization.split(" ")[1]; // Extract the token
@@ -38,7 +38,7 @@ const authenticateUser = async (req, res, next) => {
   console.log(" get token ", token);
 
   try {
-    const decoded = jwt.verify(token,secretKey); // Verify the token
+    const decoded = jwt.verify(token,process.env.JWT_SECRET); // Verify the token
     console.log("decoded", decoded);
 
     const user = await Registration.findById(decoded.id);

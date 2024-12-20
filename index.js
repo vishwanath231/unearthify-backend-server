@@ -22,7 +22,8 @@ app.use(express.json());
 database();
 
 // Set up CORS to allow requests from the frontend domain (using .env variable)
-app.use(cors({ origin: process.env.Host }));
+
+app.use(cors());
 
 // Define the routes
 app.use("/api", router);      // Main API routes
