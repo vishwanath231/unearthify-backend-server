@@ -1,15 +1,8 @@
 const mongoose = require("mongoose");
 
-const Request = new mongoose.Schema({
-  Email: { type: String },
-  Password: { type: String },
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending",
-  },
+const familySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  image: { type: String },
 });
 
-// Register the schema as a model
-const RequestData = mongoose.model("Request", Request);
-module.exports = RequestData;
+module.exports = mongoose.model("Family", familySchema);

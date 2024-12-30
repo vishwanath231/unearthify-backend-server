@@ -40,5 +40,4 @@ const FamilyMember = new Schema({
 
 
 const FamilyMemPerson = mongoose.model("FamilyMem", FamilyMember);
-
 module.exports = FamilyMemPerson;

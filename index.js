@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -11,7 +12,8 @@ dotenv.config();
 const database = require("./database/database");
 const router = require("./router/routes");
 const routerFam = require("./router/family");
-
+const admin=require("./router/adminroutes")
+const adminStay=require("./router/adminStayroute")
 const app = express();
 const PORT = process.env.PORT || 5000; // Use environment variable for port or default to 4000
 
@@ -33,9 +35,16 @@ app.use(cors({
 // Define the routes
 app.use("/api", router);      // Main API routes
 app.use("/api", routerFam);  // Family-related API routes
-
+app.use("/api",admin)
+app.use("/api",adminStay)
 // Serve static files from the "uploads" folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use(express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static('uploads'));
+// Serve static files from the 'uploads' folder
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files from the 'uploads' directory under the '/api' prefix
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Start the server and log that it's running
 app.listen(PORT, () => {

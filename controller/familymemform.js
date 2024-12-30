@@ -23,6 +23,7 @@ const familyFormMemPost = async (req, res) => {
       image,
     });
 
+    
     await memberFamily.save();
 
     res.json({
