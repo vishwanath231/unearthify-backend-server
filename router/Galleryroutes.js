@@ -1,22 +1,23 @@
 const express = require('express');
-const imageController = require('../controller/GalleryController');
-const upload = require('../middleware/galleryUploads');  // Import the upload middleware
-
 const router = express.Router();
+const galleryController = require('../controller/GalleryController');
+const upload= require("../middleware/galleryUploads")
+// POST route to create a new gallery image
+router.post('/gallery',upload.single("image"),galleryController.createGallery);
 
-// Route to create a new image (upload image)
-router.post('/images', upload.single('image'), imageController.createGallery);
+// GET route to get all gallery images
+router.get('/gallery', galleryController.getGallerys);
 
-// Route to get all images
-router.get('/images', imageController.getGallerys);
+// GET route to get gallery images by category
+router.get('/gallery/category/:category', galleryController.getGallerysByCategory);
 
-// Route to get images by category
-router.get('/images/category/:category', imageController.getImagesByCategory);
+// GET route to get a gallery image by ID
+router.get('/gallery/:id', galleryController.getGalleryById);
 
-// Route to update an image
-router.put('/images/:id', upload.single('image'), imageController.updateImage);  // If updating an image, we can upload a new one
+// PUT route to update a gallery image by ID
+router.put('/gallery/:id', upload.single("image"),galleryController.updateGalleryById);
 
-// Route to delete an image
-router.delete('/images/:id', imageController.deleteImage);
+// DELETE route to delete a gallery image by ID
+router.delete('/gallery/:id', galleryController.deleteGalleryById);
 
 module.exports = router;

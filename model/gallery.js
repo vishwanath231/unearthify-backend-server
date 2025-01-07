@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const imageSchema = new mongoose.Schema({
-  src: {
-    type: String,
-    required: true,
-  },
   alt: {
     type: String,
     required: true,
@@ -13,6 +9,10 @@ const imageSchema = new mongoose.Schema({
     type: String,
     enum: ['family', 'cricket', 'events'],  // Add more categories as needed
     required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true, // Ensure it's required if it must always be present
   },
 }, { timestamps: true });
 

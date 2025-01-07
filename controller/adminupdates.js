@@ -1,155 +1,247 @@
-const fs = require('fs');
-const path = require('path');
-const Banner = require('../model/adminBanner'); // Import the Banner model
+const Banner = require('../model/adminBanner'); // Import Banner model
+const { v4: uuidv4 } = require("uuid");
 
-// Upload Banner Data (POST)
+const mongoose = require('mongoose');
 const uploadBannerData = async (req, res) => {
   try {
-    const { titles, descriptions } = req.body;
+    const contentDetails = JSON.parse(req.body.data);
 
-    // // Validate and check if a file exists
-    if (!req.file) {
-      return res.status(400).json({ message: "Image file is required." });
-    }
+    // Ensure that a file has been uploaded
+    const imageUrl = req.files && req.files.length > 0 ? `/uploadsBanner/${req.files[0].filename}` : null;
 
-    // Get the uploaded file path
-    const image = req.file ?`/uploadsBanner/${req.file.filename}`:null;
-
-    // Log for debugging
-    console.log("Uploaded file:", req.file);
-
-    // Create a new banner document
-    const newBanner = new Banner({
-      titles: titles,
-      descriptions: descriptions,
-      images: image,
+    const items = contentDetails.map((item, index) => {
+      return {
+        itemId: uuidv4(),
+        titles: item.titles,
+        descriptions: item.descriptions,
+        image: imageUrl, // Ensure imageUrl is assigned correctly
+      };
     });
 
-    // Save the banner to the database
+    const newBanner = new Banner({ items });
     await newBanner.save();
 
-    res.status(200).json({
-      message: "Banner data and image uploaded successfully!",
-      banner: newBanner,
+    res.status(201).json({
+      message: "Banner uploaded successfully",
+      data: newBanner,
     });
   } catch (error) {
-    console.error("Error in uploadBannerData:", error);
-    res.status(500).json({ message: "Error uploading banner data." });
+    console.error("Error uploading banner:", error);
+    res.status(500).json({ error: "Error uploading banner", details: error.message });
   }
 };
 
 
 
 
-// Get all banners (GET)
+
+// Get all banners
 const getAllBanners = async (req, res) => {
   try {
     const banners = await Banner.find();
-    res.status(200).json({
-      message: 'All banners retrieved successfully.',
-      banners,
-    });
+    res.status(200).json({ data: banners });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching banners.' });
+    res.status(500).json({ error: 'Error fetching banners', details: error.message });
   }
 };
 
-// Get banner by ID (GET)
+// Get a banner by ID
 const getBannerById = async (req, res) => {
   const { id } = req.params;
-
   try {
     const banner = await Banner.findById(id);
-
     if (!banner) {
-      return res.status(404).json({ message: 'Banner not found.' });
+      return res.status(404).json({ error: 'Banner not found' });
     }
-
-    res.status(200).json({
-      message: 'Banner found.',
-      banner,
-    });
+    res.status(200).json({ data: banner });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching banner.' });
+    res.status(500).json({ error: 'Error fetching banner by ID', details: error.message });
   }
 };
 
-// Update Banner Data (PUT)
+// // Get a specific item within a banner by ID and itemId
+// const bannerGetById = async (req, res) => {
+//   try {
+//     const { id, itemId } = req.params;
+//     const banner = await Banner.findById(id);
+//     if (!banner) {
+//       return res.status(404).json({ message: "Banner not found" });
+//     }
+
+//     const item = banner.items.find((item) => item.itemId === itemId);
+//     if (!item) {
+//       return res.status(404).json({ message: "Item not found" });
+//     }
+
+//     res.status(200).json({ data: item });
+//   } catch (error) {
+//     console.error("Error fetching item by ID:", error);
+//     res.status(500).json({ error: 'Error fetching item', details: error.message });
+//   }
+// };
+
+
+
+
+// const updateBannerData = async (req, res) => {
+//   const { id, itemId } = req.params;
+//   const { titles, descriptions } = req.body;
+//   const images = req.files ? req.files.map(file => `/imagesBanner/${file.filename}`) : null; // Ensure correct path format
+
+//   try {
+//     const updatedBanner = await Banner.findOneAndUpdate(
+//       { _id: id, "items.itemId": itemId }, // Correct path to find the item
+//       {
+//         $set: {
+//           "items.$.titles": titles,
+//           "items.$.descriptions": descriptions,
+//           "items.$.image": images ? images[0] : null, // Only update image if it exists
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     if (!updatedBanner) {
+//       return res.status(404).json({ message: "Item not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "Item updated successfully!",
+//       data: updatedBanner,
+//     });
+//   } catch (error) {
+//     console.error("Error updating banner:", error);
+//     res.status(500).json({ error: 'Error updating banner', details: error.message });
+//   }
+// };
+
+
 const updateBannerData = async (req, res) => {
-  const { id } = req.params;
-  const { titles, descriptions } = req.body;
-
   try {
-    const banner = await Banner.findById(id);
+    const { id, itemId } = req.params;
+    const { titles, descriptions } = req.body;
+    const existingImage = req.body.existingImage; // If no new image is uploaded, use the existing one
 
-    if (!banner) {
-      return res.status(404).json({ message: 'Banner not found.' });
+    // Determine the image to save, using existing image if no new image is uploaded
+    let imagePath = null;
+
+    if (req.file) {
+      imagePath = `/uploadsBanner/${req.file.filename}`;
+    } else if (existingImage) {
+      imagePath = existingImage; // Use the existing image if no new image is provided
     }
 
-    // If new titles, descriptions, and files are provided, update them
-    if (titles && descriptions) {
-      // Validate titles and descriptions are arrays and have the same length as files
-      if (!Array.isArray(titles) || !Array.isArray(descriptions) || titles.length !== descriptions.length || titles.length !== req.files.length) {
-        return res.status(400).json({ message: 'Titles, descriptions, and images must be arrays of the same length.' });
-      }
+    const updateQuery = {
+      ...(titles && { "items.$.titles": titles }),
+      ...(descriptions && { "items.$.descriptions": descriptions }),
+      ...(imagePath && { "items.$.image": imagePath }), // Update image if present
+    };
 
-      // Map the uploaded files to image names
-      const images = req.files.map(file => file.filename);
+    const updatedBanner = await Banner.findOneAndUpdate(
+      { _id: id, "items.itemId": itemId },
+      { $set: updateQuery },
+      { new: true }
+    );
 
-      // Update banner with the new values
-      banner.titles = titles;
-      banner.descriptions = descriptions;
-      banner.images = images;
+    if (!updatedBanner) {
+      return res.status(404).json({ message: "Item not found" });
     }
-
-    // Save the updated banner
-    await banner.save();
 
     res.status(200).json({
-      message: 'Banner updated successfully!',
-      banner,
+      message: "Item updated successfully",
+      data: updatedBanner,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating banner data.' });
+    console.error("Error updating banner:", error);
+    res.status(500).json({ message: "Server error", details: error.message });
   }
 };
 
-// Delete Banner Data (DELETE)
-const deleteBannerData = async (req, res) => {
-  const { id } = req.params;
 
-  try {
-    const banner = await Banner.findById(id);
 
-    if (!banner) {
-      return res.status(404).json({ message: 'Banner not found.' });
-    }
 
-    // Delete images from the server
-    banner.images.forEach((image) => {
-      const imagePath = path.join(__dirname, 'uploadsBanner', image);
-      fs.unlink(imagePath, (err) => {
-        if (err) console.error(`Error deleting file: ${imagePath}`);
-      });
-    });
 
-    // Delete banner from the database
-    await banner.remove();
 
-    res.status(200).json({ message: 'Banner deleted successfully!' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error deleting banner.' });
-  }
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const deleteBannerData = async (req, res) => {
+//   try {
+//     const { bannerId } = req.params;  // Extract bannerId from the URL parameter
+//     const { itemId } = req.body;      // Extract itemId from the request body
+//     console.log("Banner ID:", bannerId, "Item ID:", itemId);
+
+
+//     if (!banner) {
+//       return res.status(404).json({ message: "Banner not found" });
+//     }
+
+//     return res.status(200).json({
+//       message: "Banner deleted successfully!",
+//     });
+//     // Validate if itemId is in UUID format (assuming UUID for itemId)
+//     if (!itemId || !validateUUID(itemId)) {
+//       return res.status(400).json({ message: "Invalid itemId" });
+//     }
+
+//     // Find the Banner and remove the item from the items array
+//     const banner = await Banner.findById(bannerId);
+//     if (!banner) {
+//       return res.status(404).json({ message: "Banner not found" });
+//     }
+
+//     const itemIndex = banner.items.findIndex(item => item.itemId === itemId);
+//     if (itemIndex === -1) {
+//       return res.status(404).json({ message: "Item not found in the Banner" });
+//     }
+
+//     // Remove the item from the items array
+//     banner.items.pull(banner.items[itemIndex]._id);
+//     await banner.save();
+
+//     res.status(200).json({
+//       message: "Item deleted successfully from the Banner!",
+//     });
+//   } catch (err) {
+//     console.error("Error:", err);
+//     res.status(400).json({ error: err.message });
+//   }
+// };
+
+// // Helper function to validate UUID (itemId)
+// function validateUUID(uuid) {
+//   const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+//   return regex.test(uuid);
+// }
+
+
+
+
 
 module.exports = {
   uploadBannerData,
   getAllBanners,
   getBannerById,
+  // bannerGetById,
   updateBannerData,
-  deleteBannerData,
+  // deleteBannerData,
 };

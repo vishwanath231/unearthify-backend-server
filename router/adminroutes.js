@@ -1,21 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const upload= require('../middleware/BannerImage');  
-const controller = require('../controller/adminupdates'); 
+const upload = require('../middleware/BannerImage'); // Import multer middleware
+const controller = require('../controller/adminupdates'); // Import controller functions
 
-// Route for uploading banner data
-router.post("/uploadBanner", upload.single("file"),controller.uploadBannerData);
+
+
+router.post("/uploadBanner", upload, controller.uploadBannerData);
+
+
 
 // Route to get all banners
-router.get('/banners',controller.getAllBanners);
+router.get('/banners', controller.getAllBanners);
 
-// // Route to get a banner by ID
-// router.get('/banner/:id',controller.getBannerById);
+// Route to get a specific banner by ID
+router.get('/banner/:id', controller.getBannerById);
 
-// // Route for updating banner data by ID
-// router.put('/updateBanner/:id', uploadMiddleware,controller.updateBannerData);
 
-// // Route for deleting banner data by ID
-// router.delete('/deleteBanner/:id',controller.deleteBannerData);
+// Route for updating a specific item within a banner
+router.put('/updateBanner/:id/item/:itemId', upload, controller.updateBannerData);
+
 
 module.exports = router;

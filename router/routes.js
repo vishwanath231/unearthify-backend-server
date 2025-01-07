@@ -1,7 +1,6 @@
 // router.js
 const express = require("express");
 const controller = require("../controller/controller");
-
 const router = express.Router();
 const verifyToken = require("../middleware/jwt");
 router.post("/register", controller.regPost);

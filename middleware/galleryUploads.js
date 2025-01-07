@@ -1,10 +1,17 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// Set storage engine for multer (uploads to local server)
+// Ensure the 'uploadsGallery' directory exists asynchronously
+const dir = path.join(__dirname, '..', 'uploadsGallery');  // Adjust to point to the server root
+fs.promises.mkdir(dir, { recursive: true }).catch((err) => {
+  console.error("Error creating uploads directory:", err);
+});
+
+// Set storage engine for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploadsGallery/'); // Folder where images will be stored
+    cb(null, dir); // Use the updated directory path
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname)); // Unique filename with timestamp
@@ -13,17 +20,21 @@ const storage = multer.diskStorage({
 
 // Filter file type (allow only images)
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image')) {
-    cb(null, true);
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true); // Allow image files
   } else {
-    cb(new Error('Only image files are allowed'), false);
+    const error = new Error("Only image files are allowed");
+    error.code = "INVALID_FILE_TYPE";
+    cb(error, false); // Reject non-image files with an error
   }
 };
 
+// Configure multer
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+  storage,
+  fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
+// Export the upload middleware
 module.exports = upload;
