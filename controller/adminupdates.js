@@ -1,7 +1,6 @@
 const Banner = require('../model/adminBanner'); // Import Banner model
 const { v4: uuidv4 } = require("uuid");
 
-const mongoose = require('mongoose');
 const uploadBannerData = async (req, res) => {
   try {
     const contentDetails = JSON.parse(req.body.data);
@@ -59,90 +58,34 @@ const getBannerById = async (req, res) => {
   }
 };
 
-// // Get a specific item within a banner by ID and itemId
-// const bannerGetById = async (req, res) => {
-//   try {
-//     const { id, itemId } = req.params;
-//     const banner = await Banner.findById(id);
-//     if (!banner) {
-//       return res.status(404).json({ message: "Banner not found" });
-//     }
-
-//     const item = banner.items.find((item) => item.itemId === itemId);
-//     if (!item) {
-//       return res.status(404).json({ message: "Item not found" });
-//     }
-
-//     res.status(200).json({ data: item });
-//   } catch (error) {
-//     console.error("Error fetching item by ID:", error);
-//     res.status(500).json({ error: 'Error fetching item', details: error.message });
-//   }
-// };
-
-
-
-
-// const updateBannerData = async (req, res) => {
-//   const { id, itemId } = req.params;
-//   const { titles, descriptions } = req.body;
-//   const images = req.files ? req.files.map(file => `/imagesBanner/${file.filename}`) : null; // Ensure correct path format
-
-//   try {
-//     const updatedBanner = await Banner.findOneAndUpdate(
-//       { _id: id, "items.itemId": itemId }, // Correct path to find the item
-//       {
-//         $set: {
-//           "items.$.titles": titles,
-//           "items.$.descriptions": descriptions,
-//           "items.$.image": images ? images[0] : null, // Only update image if it exists
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     if (!updatedBanner) {
-//       return res.status(404).json({ message: "Item not found" });
-//     }
-
-//     res.status(200).json({
-//       message: "Item updated successfully!",
-//       data: updatedBanner,
-//     });
-//   } catch (error) {
-//     console.error("Error updating banner:", error);
-//     res.status(500).json({ error: 'Error updating banner', details: error.message });
-//   }
-// };
-
 
 const updateBannerData = async (req, res) => {
   try {
     const { id, itemId } = req.params;
-    const { titles, descriptions } = req.body;
-    const existingImage = req.body.existingImage; // If no new image is uploaded, use the existing one
+    const { titles, descriptions, existingImage } = req.body;
 
-    // Determine the image to save, using existing image if no new image is uploaded
-    let imagePath = null;
+    let imagePath = existingImage; // Default to existing image if no new image is uploaded
 
+    // If a new file is uploaded, use its path
     if (req.file) {
       imagePath = `/uploadsBanner/${req.file.filename}`;
-    } else if (existingImage) {
-      imagePath = existingImage; // Use the existing image if no new image is provided
     }
 
+    // Construct the dynamic update query
     const updateQuery = {
       ...(titles && { "items.$.titles": titles }),
       ...(descriptions && { "items.$.descriptions": descriptions }),
       ...(imagePath && { "items.$.image": imagePath }), // Update image if present
     };
 
+    // Perform the update in the database
     const updatedBanner = await Banner.findOneAndUpdate(
-      { _id: id, "items.itemId": itemId },
-      { $set: updateQuery },
-      { new: true }
+      { _id: id, "items.itemId": itemId }, // Match banner ID and item ID
+      { $set: updateQuery }, // Apply updates dynamically
+      { new: true } // Return the updated document
     );
 
+    // Handle the case where the item is not found
     if (!updatedBanner) {
       return res.status(404).json({ message: "Item not found" });
     }
