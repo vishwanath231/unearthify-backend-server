@@ -20,7 +20,12 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with storage and filter
-const upload = multer({ storage, fileFilter });
-
+// Set file size limit to 10 MB (10 * 1024 * 1024 bytes)
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // Set max file size to 10 MB
+  },
+}).single("image"); // Handle single file upload with the field name "image"
 module.exports = upload;

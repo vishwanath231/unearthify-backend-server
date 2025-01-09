@@ -84,26 +84,22 @@ const getFamilyMemberById = async (req, res) => {
   }
 };
 
-// PUT endpoint to update a family member by ID
 const familyMemUpdate = async (req, res) => {
   try {
-    const { id } = req.params;
-    const {
-      familyId,
-      name,
-      dob,
-      gender,
-      maritalStatus,
-      education,
-      employmentStatus,
-      contactEmail,
-      contactPhone,
-      occupation,
-    } = req.body;
-    
+    // Handle Multer errors
+    if (req.fileValidationError) {
+      return res.status(400).json({ error: req.fileValidationError });
+    }
 
-    // If no new image is uploaded, keep the old image path
-    const updateData = {
+    if (req.file && req.file.size > 10 * 1024 * 1024) {
+      return res.status(400).json({ error: "File size exceeds 10 MB limit" });
+    }
+
+    const { id } = req.params;
+    const { familyId, name, dob, gender, maritalStatus, education, employmentStatus, contactEmail, contactPhone, occupation } = req.body;
+
+    // Handle image update if a new image is uploaded
+    let updateData = {
       familyId,
       name,
       dob,
@@ -115,21 +111,22 @@ const familyMemUpdate = async (req, res) => {
       contactPhone,
       occupation,
     };
-  
 
-    const updatedMember = await formFamilyMem.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
+    // If a new file is uploaded, include it in the update data
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+    }
 
-    res.json({
-      data: updatedMember,
-    });
+    // Update the family member
+    const updatedMember = await formFamilyMem.findByIdAndUpdate(id, updateData, { new: true });
+
+    res.json({ data: updatedMember });
+    console.log(updatedMember, 'upload');
+
   } catch (error) {
-    res.status(500).json({
-      Error: error.message,
-    });
+    // Handle general errors
+    console.error("Error:", error.message);
+    res.status(500).json({ Error: error.message });
   }
 };
 
@@ -156,3 +153,18 @@ module.exports = {
   getFamilyMemberById,
   familyMemGetAll
 };
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
