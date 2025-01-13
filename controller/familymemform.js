@@ -4,7 +4,7 @@ const formFamilyMem = require("../model/familymember");
 
 const familyFormMemPost = async (req, res) => {
   try {
-    const { familyId, name, dob, gender, maritalStatus, education, employmentStatus, contactEmail, contactPhone, occupation } = req.body;
+    const { familyId, name, dob, gender, maritalStatus, education, contactEmail, contactPhone, occupation,relations } = req.body;
 
     const image = req.file ? `/uploads/${req.file.filename}` : null;  
     
@@ -16,11 +16,12 @@ const familyFormMemPost = async (req, res) => {
       gender,
       maritalStatus,
       education,
-      employmentStatus,
       contactEmail,
       contactPhone,
       occupation,
-      image,
+      relations,
+      image
+      
     });
 
     
@@ -96,7 +97,7 @@ const familyMemUpdate = async (req, res) => {
     }
 
     const { id } = req.params;
-    const { familyId, name, dob, gender, maritalStatus, education, employmentStatus, contactEmail, contactPhone, occupation } = req.body;
+    const { familyId, name, dob, gender, maritalStatus, education, contactEmail, contactPhone, occupation,relations } = req.body;
 
     // Handle image update if a new image is uploaded
     let updateData = {
@@ -106,10 +107,11 @@ const familyMemUpdate = async (req, res) => {
       gender,
       maritalStatus,
       education,
-      employmentStatus,
       contactEmail,
       contactPhone,
       occupation,
+      relations
+
     };
 
     // If a new file is uploaded, include it in the update data
@@ -135,6 +137,7 @@ const familyMemDelete = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedMember = await formFamilyMem.findByIdAndDelete(id);
+    console.log(deletedMember)
     res.json({
       message: "Family member deleted successfully",
     });

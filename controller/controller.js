@@ -420,7 +420,43 @@ const Reset = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-console.log(process.env.REACT_APP_API_BASE_URL,"host env")
+
+
+
+const homeContactForm = async (req, res) => {
+  const { fullName, company, email, phone, message } = req.body;
+ console.log(req.body ,"contact")
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: "serviceuse66@gmail.com",
+        pass: "lpww malh pupq jafg",
+      },
+    });
+console.log(transporter,"contact trans")
+    const mailOptions = {
+      from: "serviceuse66@gmail.com",
+      to: email,
+      subject: 'User Enquiry Contact Form Submitted',
+      text: `
+        Name: ${fullName}
+        Company: ${company}
+        Email: ${email}
+        Phone: ${phone}
+        Message: ${message}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(mailOptions,"mail")
+    res.status(200).send('Email sent successfully!');
+  } catch (error) {
+    console.error('Error sending email:', error.message);
+    res.status(500).send('Error sending email: ' + error.message);
+  }
+}
+
 
 module.exports = {
   regPost,
@@ -438,4 +474,5 @@ module.exports = {
   getApprovedUsers,
   rejectGetAll,
   getUserInfo,
+  homeContactForm
 };

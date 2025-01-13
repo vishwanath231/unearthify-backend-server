@@ -5,7 +5,8 @@ const controller = require('../controller/adminupdates'); // Import controller f
 
 
 
-router.post("/uploadBanner", upload, controller.uploadBannerData);
+// router.post("/uploadBanner", upload, controller.uploadBannerData);
+
 
 
 

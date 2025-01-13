@@ -22,4 +22,6 @@ router.put("/reject/:id",controller.rejectRegistration)
 router.get("/approveData",controller.getApprovedUsers)
 router.get("/rejectData",controller.rejectGetAll)
  
+// homeContactForm
+router.post("/sentMail",controller.homeContactForm)
 module.exports = router;

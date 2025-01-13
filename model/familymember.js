@@ -21,9 +21,6 @@ const FamilyMember = new Schema({
   education: {
     type: String,
   },
-  employmentStatus: {
-    type: String,
-  },
   contactEmail: {
     type: String,
   },
@@ -35,7 +32,11 @@ const FamilyMember = new Schema({
   },
   image:{
     type: String
+  },
+  relations:{
+    type:String
   }
+
 });
 
 
