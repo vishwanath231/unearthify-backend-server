@@ -1,4 +1,4 @@
-const EventConnect = require("../model/adminStayConnect");
+const EventConnect = require("../../model/admin/adminStayConnect");
 const { v4: uuidv4 } = require("uuid");
 const id = uuidv4(); // Generate a unique identifier
 

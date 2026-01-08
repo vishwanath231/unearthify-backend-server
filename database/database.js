@@ -9,6 +9,12 @@ const databaseOne = () => {
     return;
   }
 
+  // Debug: Log connection string with masked password
+  const maskedUri = MongoDbOne.replace(/:([^:@]+)@/, ':****@');
+  console.log("Attempting to connect to MongoDB...");
+  console.log("Connection string:", maskedUri);
+  console.log("Full URI length:", MongoDbOne.length);
+
   mongoose
     .connect(MongoDbOne)
     .then(() => {
