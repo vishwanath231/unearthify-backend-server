@@ -11,7 +11,7 @@ dotenv.config();
 const database = require("./database/database");
 
 // Import existing routers
-const router = require("./router/routes");
+const router = require("./router/registerRoutes");
 const routerFam = require("./router/family");
 const admin = require("./router/adminroutes");
 // const adminStay = require("./router/adminStayroute");

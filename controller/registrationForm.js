@@ -4,8 +4,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Use environment variable for secret or fallback
-const secretKey = process.env.JWT_SECRET || "familyConnect";
+const secretKey = process.env.JWT_SECRET;
 
 // --- CRUD Operations ---
 
@@ -80,8 +79,6 @@ const getUserData = async (req, res) => {
 };
 
 
-
-
 const login = async (req, res) => {
   try {
     const { Email, Password } = req.body;
@@ -94,13 +91,6 @@ const login = async (req, res) => {
 
     if (!dataUser) {
       return res.status(400).json({ message: "User not found." });
-    }
-
-    // Check status
-    if (dataUser.status !== "approved") {
-      return res.status(403).json({
-        message: "Account not approved. Please wait for admin approval.",
-      });
     }
 
     const validPassword = await bcrypt.compare(Password, dataUser.Password);
