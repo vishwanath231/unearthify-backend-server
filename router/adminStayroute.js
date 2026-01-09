@@ -9,7 +9,7 @@ const {
   getEventItemById,
   updateEventItem,
   deleteEventItem,
-} = require("../controller/adminConnect");
+} = require("../controller/BannerController");
 
 // Create a new EventConnect
 router.post("/eventconnect", createEventConnect);

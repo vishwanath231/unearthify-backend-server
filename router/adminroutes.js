@@ -1,14 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/BannerImage'); // Import multer middleware
-const controller = require('../controller/adminupdates'); // Import controller functions
-
-
+const controller = require('../controller/BannerController'); // Import controller functions
 
 // router.post("/uploadBanner", upload, controller.uploadBannerData);
-
-
-
 
 // Route to get all banners
 router.get('/banners', controller.getAllBanners);

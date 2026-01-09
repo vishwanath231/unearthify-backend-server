@@ -1,23 +1,50 @@
 const express = require('express');
 const router = express.Router();
 const galleryController = require('../controller/GalleryController');
-const upload= require("../middleware/galleryUploads")
-// POST route to create a new gallery image
-router.post('/gallery',upload.single("image"),galleryController.createGallery);
+const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
+const { uploadGalleryImage } = require("../middleware/uploadMiddleware");
 
-// GET route to get all gallery images
+/**
+ * Public Routes
+ */
+
+// GET all gallery images
 router.get('/gallery', galleryController.getGallerys);
 
-// GET route to get gallery images by category
+// GET gallery images by category
 router.get('/gallery/category/:category', galleryController.getGallerysByCategory);
 
-// GET route to get a gallery image by ID
+// GET a gallery image by ID
 router.get('/gallery/:id', galleryController.getGalleryById);
 
-// PUT route to update a gallery image by ID
-router.put('/gallery/:id', upload.single("image"),galleryController.updateGalleryById);
+/**
+ * Admin Routes (Protected)
+ */
 
-// DELETE route to delete a gallery image by ID
-router.delete('/gallery/:id', galleryController.deleteGalleryById);
+// POST create a new gallery image
+router.post(
+  '/admin/gallery',
+  protectRoute,
+  restrictTo("admin", "superadmin"),
+  uploadGalleryImage.single("image"),
+  galleryController.createGallery
+);
+
+// PUT update a gallery image by ID
+router.put(
+  '/admin/gallery/:id',
+  protectRoute,
+  restrictTo("admin", "superadmin"),
+  uploadGalleryImage.single("image"),
+  galleryController.updateGalleryById
+);
+
+// DELETE a gallery image by ID
+router.delete(
+  '/admin/gallery/:id',
+  protectRoute,
+  restrictTo("admin", "superadmin"),
+  galleryController.deleteGalleryById
+);
 
 module.exports = router;
