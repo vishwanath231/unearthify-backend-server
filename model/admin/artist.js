@@ -4,7 +4,7 @@ const artistForm = new mongoose.Schema({
   name: {
     type: String,
   },
-  artForm: {
+  artistForm: {
     type: String,
   },
   region: {

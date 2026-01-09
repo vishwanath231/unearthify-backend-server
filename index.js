@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-
 // Load environment variables from .env file
 dotenv.config();
 
@@ -12,6 +11,7 @@ dotenv.config();
 const database = require("./database/database");
 const router = require("./router/routes");
 const routerFam = require("./router/family");
+const artist=require("./router/adminRoutes/artistFormRoutes")
 const admin=require("./router/adminroutes")
 const adminStay=require("./router/adminStayroute")
 const Gallery=require("./router/Galleryroutes")
@@ -25,15 +25,10 @@ app.use(express.json());
 database();
 
 // Set up CORS to allow requests from the frontend domain (using .env variable)
-
-
-
-
 app.use(cors({
   origin: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000',  // Use the correct URL for your frontend
   methods: ["GET", "POST", "PUT", "DELETE"],
 }));
-
 
 // Define the routes
 app.use("/api", router);      // Main API routes
@@ -41,10 +36,12 @@ app.use("/api", routerFam);  // Family-related API routes
 app.use("/api",admin)
 app.use("/api",adminStay)
 app.use("/api",Gallery)
+app.use("./api",artist)
 
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/api/uploadsBanner", express.static(path.join(__dirname, "uploadsBanner")));
 app.use("/api/images", express.static(path.join(__dirname, "uploadsGallery")));
+app.use("/api/uploadArtistImage", express.static(path.join(__dirname, "uploadArtistImage")));
 
 // Start the server and log that it's running
 app.listen(PORT, () => {
