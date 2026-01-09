@@ -24,7 +24,6 @@ const Gallery = require("./router/Galleryroutes");
 // const adminAuthRoutes = require("./router/adminAuthRoutes");
 
 const app = express();
-const PORT = 5000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -88,8 +87,8 @@ app.use((req, res) => {
 });
 
 // Start the server and log that it's running
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(` Base URL: http://localhost:${PORT}/api`);
+  console.log(` Base URL: http://localhost:${process.env.PORT}/api`);
 });
