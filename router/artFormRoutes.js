@@ -8,7 +8,7 @@ const {
   createArtForm,
   updateArtFormById,
   deleteArtFormById,
-} = require("../controller/artFormController");
+} = require("../controller/artformController");
 const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
 const { uploadArtFormImage } = require("../middleware/uploadMiddleware");
 
@@ -20,25 +20,25 @@ router.get("/artforms/title/:title", getArtFormByTitle);
 
 // Admin routes (protected)
 router.post(
-  "/admin/artforms",
+  "/artforms",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadArtFormImage.single("image"),
   createArtForm
 );
 
 router.put(
-  "/admin/artforms/:id",
+  "/artforms/:id",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadArtFormImage.single("image"),
   updateArtFormById
 );
 
 router.delete(
-  "/admin/artforms/:id",
+  "/artforms/:id",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   deleteArtFormById
 );
 

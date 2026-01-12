@@ -23,27 +23,27 @@ router.get('/gallery/:id', galleryController.getGalleryById);
 
 // POST create a new gallery image
 router.post(
-  '/admin/gallery',
+  '/gallery',
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadGalleryImage.single("image"),
   galleryController.createGallery
 );
 
 // PUT update a gallery image by ID
 router.put(
-  '/admin/gallery/:id',
+  '/gallery/:id',
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadGalleryImage.single("image"),
   galleryController.updateGalleryById
 );
 
 // DELETE a gallery image by ID
 router.delete(
-  '/admin/gallery/:id',
+  '/gallery/:id',
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   galleryController.deleteGalleryById
 );
 

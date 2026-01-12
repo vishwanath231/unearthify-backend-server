@@ -15,7 +15,7 @@ const ArtFormSchema = new mongoose.Schema(
     },
     icon: {
       type: String,
-      default: "🎨",
+      default: "",
     },
     image: {
       type: String,

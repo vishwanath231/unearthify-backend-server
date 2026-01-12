@@ -29,7 +29,7 @@ const updateBannerData = async (req, res) => {
   try {
     const { id, itemId } = req.params;
     const { titles, descriptions } = req.body;
-    const image = req.file ? `/uploadsBanner/${req.file.filename}` : null;
+    const image = req.file ? `/api/bannerImage/${req.file.filename}` : null;
 
     const banner = await Banner.findById(id);
     if (!banner) {

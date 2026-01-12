@@ -87,14 +87,6 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "User not found." });
     }
 
-    // Check if the user's status is 'approved'
-    if (dataUser.status !== "approved") {
-      return res.status(400).json({
-        message:
-          "Please wait for admin approval / Your are New User Register first",
-      });
-    }
-
     // Validate the password
     const validPassword = await bcrypt.compare(Password, dataUser.Password);
     if (!validPassword) {

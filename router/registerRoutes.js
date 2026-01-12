@@ -9,7 +9,6 @@ router.post("/login", controller.login);
 router.get("/user", verifyToken, controller.getUserData); // Get current logged in user
 router.get("/userData", controller.getUser); // Get all users
 
-
 router.post("/forgotPassword", controller.Forgot);
 router.post("/resetPassword/:token", controller.Reset);
 

@@ -33,36 +33,32 @@ router.get("/artists/:id", getArtistById);
 
 // Create artist
 router.post(
-  "/admin/artists",
+  "/artists",
   protectRoute,
-  restrictTo("admin", "superadmin"),
-  uploadArtistImage.single("image"),
+  restrictTo("admin"),
+  uploadArtistImage.fields([
+    { name: "image", maxCount: 1 },
+    { name: "collection", maxCount: 10 },
+  ]),
   createArtist
 );
 
 // Update artist
 router.put(
-  "/admin/artists/:id",
+  "/artists/:id",
   protectRoute,
-  restrictTo("admin", "superadmin"),
-  uploadArtistImage.single("image"),
+  restrictTo("admin"),
+  uploadArtistImage.fields([
+    { name: "image", maxCount: 1 },
+    { name: "collection", maxCount: 10 },
+  ]),
   updateArtistById
 );
 
 // Delete artist
-router.delete(
-  "/admin/artists/:id",
-  protectRoute,
-  restrictTo("admin", "superadmin"),
-  deleteArtistById
-);
+router.delete("/artists/:id",protectRoute,restrictTo("admin"),deleteArtistById);
 
 // Toggle featured status
-router.patch(
-  "/admin/artists/:id/toggle-featured",
-  protectRoute,
-  restrictTo("admin", "superadmin"),
-  toggleFeaturedStatus
-);
+router.patch("/artists/:id/toggle-featured",protectRoute,restrictTo("admin"),toggleFeaturedStatus);
 
 module.exports = router;

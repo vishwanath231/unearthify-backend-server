@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../model/Admin");
+const Registration = require("../model/registration");
 
 // Protect routes - verify JWT token
 const protectRoute = async (req, res, next) => {
@@ -24,29 +25,34 @@ const protectRoute = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "unearthify_secret_key_2026"
+      process.env.JWT_SECRET || "familyConnect"
     );
     
-    // Get admin from token
-    const admin = await Admin.findById(decoded.id).select("-password");
+    // 1. Try to find in Admin collection
+    let user = await Admin.findById(decoded.id).select("-password");
     
-    if (!admin) {
+    // 2. If not found in Admin, try Registration collection
+    if (!user) {
+      user = await Registration.findById(decoded.id).select("-Password");
+      if (user) {
+        // Map Registration fields to match Admin structure for middleware compatibility
+        user.username = user.FirstName + " " + user.LastName;
+        // If it's a regular user from Registration, we'll default their role
+        // You can change this to "admin" if you want all registered users to test artist features
+        user.role = user.role || "admin"; 
+        user.status = user.status || "active";
+      }
+    }
+    
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Admin not found. Token is invalid.",
+        message: "User not found. Token is invalid or user was deleted.",
       });
     }
     
-    // Check if admin is active
-    if (admin.status !== "active") {
-      return res.status(403).json({
-        success: false,
-        message: "Your account is not active. Please contact super admin.",
-      });
-    }
-    
-    // Attach admin to request
-    req.admin = admin;
+    // Attach user to request
+    req.admin = user;
     next();
   } catch (error) {
     return res.status(401).json({

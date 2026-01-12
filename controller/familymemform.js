@@ -6,7 +6,7 @@ const familyFormMemPost = async (req, res) => {
   try {
     const { familyId, name, dob, gender, maritalStatus, education, contactEmail, contactPhone, occupation,relations } = req.body;
 
-    const image = req.file ? `/uploads/${req.file.filename}` : null;  
+    const image = req.file ? `/api/familyImage/${req.file.filename}` : null;  
     
     console.log(req.file,"file")
     const memberFamily = new formFamilyMem({
@@ -116,7 +116,7 @@ const familyMemUpdate = async (req, res) => {
 
     // If a new file is uploaded, include it in the update data
     if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+      updateData.image = `/api/familyImage/${req.file.filename}`;
     }
 
     // Update the family member

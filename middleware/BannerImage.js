@@ -3,17 +3,26 @@ const path = require("path");
 const fs = require("fs");
 
 // Ensure the directory exists
-const dir = path.join(__dirname, "..", "uploadsBanner");
+const dir = path.join(__dirname, "..", "bannerImage");
 fs.promises.mkdir(dir, { recursive: true }).catch((err) => {
   console.error("Error creating uploads directory:", err);
 });
+
+
+
+
+
 
 // Configure Multer storage and file filter
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, dir);
   },
-  filename: (req, file, cb) => {
+
+
+
+  filename: (req, file, cb) => 
+    {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });

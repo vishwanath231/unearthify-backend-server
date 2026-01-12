@@ -18,7 +18,7 @@ const artistStorage = multer.diskStorage({
 // Storage configuration for event images
 const eventStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, "eventImage/");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -32,7 +32,7 @@ const eventStorage = multer.diskStorage({
 // Storage configuration for art form images
 const artFormStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploadsArtForms/");
+    cb(null, "artFormImage/");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -46,7 +46,7 @@ const artFormStorage = multer.diskStorage({
 // Storage configuration for gallery images
 const galleryStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploadsGallery/");
+    cb(null, "galleryImage/");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

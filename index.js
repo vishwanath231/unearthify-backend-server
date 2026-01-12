@@ -18,10 +18,12 @@ const admin = require("./router/adminroutes");
 const Gallery = require("./router/Galleryroutes");
 
 // Import new routers for the main application
-// const artistRoutes = require("./router/artistRoutes");
-// const eventRoutes = require("./router/eventRoutes");
-// const artFormRoutes = require("./router/artFormRoutes");
-// const adminAuthRoutes = require("./router/adminAuthRoutes");
+const artistRoutes = require("./router/artistRoutes");
+const eventRoutes = require("./router/eventRoutes");
+const artFormRoutes = require("./router/artFormRoutes");
+const adminAuthRoutes = require("./router/adminAuthRoutes");
+const contributeRoutes = require("./router/contributeRoutes");
+const applicationRoutes = require("./router/applicationRoutes");
 
 const app = express();
 const PORT = 5000;
@@ -50,10 +52,12 @@ app.get("/", (req, res) => {
 });
 
 // Define the routes - New API routes
-// app.use("/api", artistRoutes);      // Artist routes
-// app.use("/api", eventRoutes);       // Event routes
-// app.use("/api", artFormRoutes);     // Art Form routes
-// app.use("/api", adminAuthRoutes);   // Admin authentication routes
+app.use("/api", artistRoutes);      // Artist routes
+app.use("/api", eventRoutes);       // Event routes
+app.use("/api", artFormRoutes);     // Art Form routes
+app.use("/api", adminAuthRoutes);   // Admin authentication routes
+app.use("/api", contributeRoutes); // Contribution routes
+app.use("/api", applicationRoutes); // Application routes
 
 // Existing routes
 app.use("/api", router);            // Main API routes
@@ -62,12 +66,13 @@ app.use("/api", admin);             // Admin routes
 // app.use("/api", adminStay);         // Admin stay routes
 app.use("/api", Gallery);           // Gallery routes
 
-// Static file serving for uploads
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use("/api/uploadsBanner", express.static(path.join(__dirname, "uploadsBanner")));
-app.use("/api/images", express.static(path.join(__dirname, "uploadsGallery")));
+// Static file serving for images
+app.use('/api/eventImage', express.static(path.join(__dirname, 'eventImage')));
+app.use('/api/familyImage', express.static(path.join(__dirname, 'familyImage')));
+app.use("/api/bannerImage", express.static(path.join(__dirname, "bannerImage")));
+app.use("/api/galleryImage", express.static(path.join(__dirname, "galleryImage")));
 app.use("/api/uploadArtistImage", express.static(path.join(__dirname, "uploadArtistImage")));
-app.use("/api/uploadsArtForms", express.static(path.join(__dirname, "uploadsArtForms")));
+app.use("/api/artFormImage", express.static(path.join(__dirname, "artFormImage")));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

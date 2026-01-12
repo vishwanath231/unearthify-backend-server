@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 // Ensure the 'uploadsGallery' directory exists asynchronously
-const dir = path.join(__dirname, '..', 'uploadsGallery');  // Adjust to point to the server root
+const dir = path.join(__dirname, '..', 'galleryImage');  // Adjust to point to the server root
 fs.promises.mkdir(dir, { recursive: true }).catch((err) => {
   console.error("Error creating uploads directory:", err);
 });

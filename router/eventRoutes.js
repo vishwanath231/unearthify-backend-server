@@ -18,25 +18,25 @@ router.get("/events/:id", getEventById);
 
 // Admin routes (protected)
 router.post(
-  "/admin/events",
+  "/events",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadEventImage.single("image"),
   createEvent
 );
 
 router.put(
-  "/admin/events/:id",
+  "/events/:id",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   uploadEventImage.single("image"),
   updateEventById
 );
 
 router.delete(
-  "/admin/events/:id",
+  "/events/:id",
   protectRoute,
-  restrictTo("admin", "superadmin"),
+  restrictTo("admin"),
   deleteEventById
 );
 

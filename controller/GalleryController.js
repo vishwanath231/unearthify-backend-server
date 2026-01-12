@@ -4,7 +4,7 @@ const Gallery = require('../model/gallery');
 const createGallery = async (req, res) => {
   try {
     const { alt, category } = req.body;
-    const imageUrl = req.file ? `/images/${req.file.filename}` : null;
+    const imageUrl = req.file ? `/api/galleryImage/${req.file.filename}` : null;
 
     if (!imageUrl) {
       return res.status(400).json({ message: "Image file is required." });
@@ -66,7 +66,7 @@ const getGalleryById = async (req, res) => {
 const updateGalleryById = async (req, res) => {
   const { id } = req.params;
   const { alt, category } = req.body;
-  const imageUrl = req.file ? `/images/${req.file.filename}` : null;
+  const imageUrl = req.file ? `/api/galleryImage/${req.file.filename}` : null;
 
   try {
     const updatedGallery = await Gallery.findById(id);

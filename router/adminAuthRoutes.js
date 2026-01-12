@@ -23,21 +23,21 @@ router.put("/admin/change-password", protectRoute, changePassword);
 router.get(
   "/admin/all",
   protectRoute,
-  restrictTo("superadmin"),
+  restrictTo("admin"),
   getAllAdmins
 );
 
 router.put(
   "/admin/:id",
   protectRoute,
-  restrictTo("superadmin"),
+  restrictTo("admin"),
   updateAdminById
 );
 
 router.delete(
   "/admin/:id",
   protectRoute,
-  restrictTo("superadmin"),
+  restrictTo("admin"),
   deleteAdminById
 );
 

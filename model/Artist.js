@@ -12,7 +12,17 @@ const ArtistSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    region: {
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    country: {
       type: String,
       required: true,
       trim: true,
@@ -29,6 +39,11 @@ const ArtistSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    collection: [
+      {
+        type: String,
+      },
+    ],
     status: {
       type: String,
       enum: ["active", "inactive"],
