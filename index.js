@@ -35,11 +35,25 @@ app.use(express.urlencoded({ extended: true }));
 database();
 
 // Set up CORS to allow requests from the frontend domain
-app.use(cors({
-  origin: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000',
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true,
-}));
+const allowedOrigins = process.env.REACT_APP_API_BASE_URL
+  ? process.env.REACT_APP_API_BASE_URL.split(",").map((url) => url.trim())
+  : ["http://localhost:3000"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
 
 // Health check route
 app.get("/", (req, res) => {
