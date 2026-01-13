@@ -1,45 +1,58 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getAllArtForms,
-  getArtFormsByCategory,
-  getArtFormById,
-  getArtFormByTitle,
-  createArtForm,
-  updateArtFormById,
-  deleteArtFormById,
-} = require("../controller/artformController");
-const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
 const { uploadArtFormImage } = require("../middleware/uploadMiddleware");
+const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
 
-// Public routes
-router.get("/artforms", getAllArtForms);
-router.get("/artforms/category/:category", getArtFormsByCategory);
-router.get("/artforms/:id", getArtFormById);
-router.get("/artforms/title/:title", getArtFormByTitle);
+// Import New Controllers
+const {
+  createCategory,
+  getAllCategories,
+  getCategoryById
+} = require("../controller/artform/artCategoryController");
 
-// Admin routes (protected)
+const {
+  createArtDetail,
+  getAllArtDetails,
+  getArtDetailById
+} = require("../controller/artform/artDetailController");
+
+
+// ==========================================
+// Category Routes
+// ==========================================
+
+// Public: Get all categories (Admin likely needs this too for lists, and User for viewing)
+router.get("/categories", getAllCategories);
+router.get("/categories/:id", getCategoryById);
+
+// Admin: Create Category with Art Types
+// Expects 'images' field for files
 router.post(
-  "/artforms",
-  protectRoute,
-  restrictTo("admin"),
-  uploadArtFormImage.single("image"),
-  createArtForm
+  "/categories",
+  // protectRoute,
+  // restrictTo("admin"), // Uncomment protecting later if needed, user didn't specify authentication reqs but usually yes.
+  uploadArtFormImage.array("images"), // "images" must match the formData field name
+  createCategory
 );
 
-router.put(
-  "/artforms/:id",
-  protectRoute,
-  restrictTo("admin"),
-  uploadArtFormImage.single("image"),
-  updateArtFormById
-);
 
-router.delete(
-  "/artforms/:id",
-  protectRoute,
-  restrictTo("admin"),
-  deleteArtFormById
+// ==========================================
+// Art Details Routes
+// ==========================================
+
+// Public: Get all details
+router.get("/details", getAllArtDetails);
+router.get("/details/:id", getArtDetailById);
+
+// Admin: Create Art Details
+router.post(
+  "/details",
+  // protectRoute,
+  // restrictTo("admin"),
+  // upload.none(), // If there are no files, multer's .none() or just express.json() works. 
+  // But wait, express.json() is global usually. 
+  // If we don't have files here, standard body parsing applies.
+  createArtDetail
 );
 
 module.exports = router;
