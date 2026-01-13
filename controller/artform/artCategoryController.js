@@ -11,12 +11,21 @@ const createCategory = async (req, res) => {
         try {
             artTypes = JSON.parse(artTypes);
         } catch (e) {
-            return res.status(400).json({ success: false, message: "Invalid artTypes format. Must be JSON array." });
+            // If legitimate JSON parse fails, assume it might be a simple string (single art type name)
+            // This allows Postman users to just type "Painting" instead of full JSON
+            console.log("artTypes is not valid JSON, treating as single type Name:", artTypes);
+            artTypes = [{ name: artTypes, description: "" }];
         }
     }
 
     if (!artTypes || !Array.isArray(artTypes)) {
-       return res.status(400).json({ success: false, message: "artTypes is required and must be an array." });
+       // Final fallback if it parsed to something else (e.g. number/boolean which is rare in formData but possible)
+       if (typeof artTypes === 'object' && artTypes !== null) {
+          // It was already an object (maybe body parser handled it?), wrap in array if not array
+          artTypes = [artTypes];
+       } else {
+           return res.status(400).json({ success: false, message: "artTypes is required and must be an array (or a valid string name)." });
+       }
     }
 
     // Check if files are uploaded

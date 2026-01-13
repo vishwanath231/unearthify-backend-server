@@ -31,7 +31,7 @@ router.post(
   "/categories",
   // protectRoute,
   // restrictTo("admin"), // Uncomment protecting later if needed, user didn't specify authentication reqs but usually yes.
-  uploadArtFormImage.array("images"), // "images" must match the formData field name
+  uploadArtFormImage.array("image"), // "image" matches the Postman key (can handle multiple files with same key)
   createCategory
 );
 
@@ -49,9 +49,7 @@ router.post(
   "/details",
   // protectRoute,
   // restrictTo("admin"),
-  // upload.none(), // If there are no files, multer's .none() or just express.json() works. 
-  // But wait, express.json() is global usually. 
-  // If we don't have files here, standard body parsing applies.
+  uploadArtFormImage.none(), // Required to parse multipart/form-data when no files are uploaded
   createArtDetail
 );
 
