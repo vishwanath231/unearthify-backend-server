@@ -3,8 +3,8 @@ const router = express.Router();
 const {
   createContribution,
   getAllContributions,
-  updateContributionStatus,
   deleteContribution,
+  updateContribution,
 } = require("../controller/contributeController");
 const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
 
@@ -18,10 +18,10 @@ router.post("/contribute", upload.none(), createContribution);
 router.get("/contributions", protectRoute, restrictTo("admin"), getAllContributions);
 
 router.patch(
-  "/contributions/:id/status",
+  "/contributions/:id",
   protectRoute,
   restrictTo("admin"),
-  updateContributionStatus
+  updateContribution
 );
 
 router.delete(

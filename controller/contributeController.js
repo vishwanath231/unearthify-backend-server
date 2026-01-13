@@ -52,14 +52,18 @@ const getAllContributions = async (req, res) => {
 };
 
 // Update contribution status (Admin only)
-const updateContributionStatus = async (req, res) => {
+const updateContribution = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
 
     const contribution = await Contribute.findByIdAndUpdate(
       id,
-      { status },
+      {
+        name: req.body.name,
+        mobileNumber: req.body.mobileNumber,
+        contributionType: req.body.contributionType,
+        description: req.body.description,
+      },
       { new: true, runValidators: true }
     );
 
@@ -113,6 +117,6 @@ const deleteContribution = async (req, res) => {
 module.exports = {
   createContribution,
   getAllContributions,
-  updateContributionStatus,
+  updateContribution,
   deleteContribution,
 };

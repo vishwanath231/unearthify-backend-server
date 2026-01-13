@@ -27,12 +27,7 @@ const EventSchema = new mongoose.Schema(
     categories:{
       type: String,
       required:true
-    },
-    status: {
-      type: String,
-      enum: ["upcoming", "ongoing", "completed", "cancelled"],
-      default: "upcoming",
-    },
+    }
   },
   {
     timestamps: true,
