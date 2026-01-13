@@ -13,15 +13,11 @@ const database = require("./database/database");
 // Import existing routers
 const router = require("./router/registerRoutes");
 const routerFam = require("./router/family");
-const admin = require("./router/adminroutes");
-// const adminStay = require("./router/adminStayroute");
-const Gallery = require("./router/Galleryroutes");
 
 // Import new routers for the main application
 const artistRoutes = require("./router/artistRoutes");
 const eventRoutes = require("./router/eventRoutes");
 const artFormRoutes = require("./router/artFormRoutes");
-const adminAuthRoutes = require("./router/adminAuthRoutes");
 const contributeRoutes = require("./router/contributeRoutes");
 const applicationRoutes = require("./router/applicationRoutes");
 
@@ -68,16 +64,14 @@ app.get("/", (req, res) => {
 app.use("/api", artistRoutes);      // Artist routes
 app.use("/api", eventRoutes);       // Event routes
 app.use("/api", artFormRoutes);     // Art Form routes
-app.use("/api", adminAuthRoutes);   // Admin authentication routes
+
 app.use("/api", contributeRoutes); // Contribution routes
 app.use("/api", applicationRoutes); // Application routes
 
 // Existing routes
 app.use("/api", router);            // Main API routes
 app.use("/api", routerFam);         // Family-related API routes
-app.use("/api", admin);             // Admin routes
-// app.use("/api", adminStay);         // Admin stay routes
-app.use("/api", Gallery);           // Gallery routes
+ 
 
 // Static file serving for images
 app.use('/api/eventImage', express.static(path.join(__dirname, 'eventImage')));
