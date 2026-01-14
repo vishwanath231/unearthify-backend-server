@@ -81,8 +81,24 @@ const getArtDetailById = async (req, res) => {
     }
 }
 
+const deleteArtDetail = async (req, res) => {
+  try {
+    const deleted = await ArtDetail.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Detail not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Delete failed", error: error.message });
+  }
+};
+
+
 module.exports = {
   createArtDetail,
   getAllArtDetails,
-  getArtDetailById
+  getArtDetailById,
+  deleteArtDetail
 };

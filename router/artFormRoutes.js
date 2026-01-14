@@ -7,13 +7,15 @@ const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
 const {
   createCategory,
   getAllCategories,
-  getCategoryById
+  getCategoryById,
+  deleteCategory
 } = require("../controller/artform/artCategoryController");
 
 const {
   createArtDetail,
   getAllArtDetails,
-  getArtDetailById
+  getArtDetailById,
+  deleteArtDetail
 } = require("../controller/artform/artDetailController");
 
 
@@ -29,10 +31,20 @@ router.get("/categories/:id", getCategoryById);
 // Expects 'images' field for files
 router.post(
   "/categories",
-  // protectRoute,
-  // restrictTo("admin"), // Uncomment protecting later if needed, user didn't specify authentication reqs but usually yes.
-  uploadArtFormImage.array("image"), // "image" matches the Postman key (can handle multiple files with same key)
+  protectRoute,
+  restrictTo("admin"), // Uncomment protecting later if needed, user didn't specify authentication reqs but usually yes.
+  uploadArtFormImage.fields([
+    { name: "categoryImage", maxCount: 1 },
+    { name: "image", maxCount: 20 }
+  ]), // "image" matches the Postman key (can handle multiple files with same key)
   createCategory
+);
+
+router.delete(
+  "/categories/:id",
+  protectRoute,
+  restrictTo("admin"),
+  deleteCategory
 );
 
 
@@ -47,10 +59,17 @@ router.get("/details/:id", getArtDetailById);
 // Admin: Create Art Details
 router.post(
   "/details",
-  // protectRoute,
-  // restrictTo("admin"),
+  protectRoute,
+  restrictTo("admin"),
   uploadArtFormImage.none(), // Required to parse multipart/form-data when no files are uploaded
   createArtDetail
+);
+
+router.delete(
+  "/details/:id",
+  protectRoute,
+  restrictTo("admin"),
+  deleteArtDetail
 );
 
 module.exports = router;

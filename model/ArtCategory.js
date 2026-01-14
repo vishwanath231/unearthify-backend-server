@@ -28,6 +28,10 @@ const ArtCategorySchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    image: {
+      type: String,
+      required: true   // CATEGORY IMAGE
+    },
     artTypes: [ArtTypeSchema], // Array of Art Types
   },
   {
