@@ -162,10 +162,115 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+const addArtTypeToCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    let { artTypes } = req.body;
+
+    if (typeof artTypes === "string") {
+      artTypes = JSON.parse(artTypes);
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "Art type images required" });
+    }
+
+    const newArtTypes = artTypes.map((type, index) => ({
+      name: type.name,
+      description: type.description,
+      image: `/api/artFormImage/${req.files[index].filename}`,
+    }));
+
+    const updated = await ArtCategory.findByIdAndUpdate(
+      categoryId,
+      { $push: { artTypes: { $each: newArtTypes } } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Art type added",
+      data: updated,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Add art type failed", error: err.message });
+  }
+};
+
+// UPDATE ART TYPE INSIDE CATEGORY
+const updateArtTypeInCategory = async (req, res) => {
+  try {
+    const { categoryId, artTypeId } = req.params;
+    const { name, description } = req.body;
+
+    const category = await ArtCategory.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
+    const artType = category.artTypes.id(artTypeId);
+    if (!artType) {
+      return res.status(404).json({ success: false, message: "Art type not found" });
+    }
+
+    // update text
+    if (name) artType.name = name;
+    if (description) artType.description = description;
+
+    // update image if new one uploaded
+    if (req.files?.image?.[0]) {
+      artType.image = `/api/artFormImage/${req.files.image[0].filename}`;
+    }
+
+    await category.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Art type updated successfully",
+      data: artType
+    });
+
+  } catch (error) {
+    console.error("Update art type error:", error);
+    res.status(500).json({ success: false, message: "Update failed", error: error.message });
+  }
+};
+
+const deleteArtType = async (req, res) => {
+  try {
+    const { categoryId, artTypeId } = req.params;
+
+    const updated = await ArtCategory.findByIdAndUpdate(
+      categoryId,
+      { $pull: { artTypes: { _id: artTypeId } } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Art type deleted",
+      data: updated
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Delete failed", error: error.message });
+  }
+};
+
 
 module.exports = {
   createCategory,
   getAllCategories,
   getCategoryById,
-  deleteCategory
+  deleteCategory,
+  updateArtTypeInCategory,
+  deleteArtType,
+  addArtTypeToCategory
 };

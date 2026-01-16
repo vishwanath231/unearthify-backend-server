@@ -8,7 +8,10 @@ const {
   createCategory,
   getAllCategories,
   getCategoryById,
-  deleteCategory
+  deleteCategory,
+  updateArtTypeInCategory ,
+  deleteArtType,
+  addArtTypeToCategory
 } = require("../controller/artform/artCategoryController");
 
 const {
@@ -48,6 +51,28 @@ router.delete(
   deleteCategory
 );
 
+router.put(
+  "/categories/:categoryId/arttype/:artTypeId",
+  protectRoute,
+  restrictTo("admin"),
+  uploadArtFormImage.fields([{ name: "image", maxCount: 1 }]),
+  updateArtTypeInCategory
+);
+
+router.delete(
+  "/categories/:categoryId/arttype/:artTypeId",
+  protectRoute,
+  restrictTo("admin"),
+  deleteArtType
+);
+
+router.post(
+  "/categories/:categoryId/arttype",
+  protectRoute,
+  restrictTo("admin"),
+  uploadArtFormImage.array("image", 20),
+  addArtTypeToCategory
+);
 
 // ==========================================
 // Art Details Routes
