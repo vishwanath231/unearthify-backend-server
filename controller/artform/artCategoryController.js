@@ -75,9 +75,6 @@ const ArtCategory = require("../../model/ArtCategory");
     const { categoryName, categoryDescription } = req.body;
     let { artTypes } = req.body;
 
-    console.log("BODY:", req.body);
-console.log("FILES:", req.files);
-
     if (typeof artTypes === "string") {
       artTypes = JSON.parse(artTypes);
     }

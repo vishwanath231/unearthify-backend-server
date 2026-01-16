@@ -15,6 +15,7 @@ const {
   createArtDetail,
   getAllArtDetails,
   getArtDetailById,
+  updateArtDetail,
   deleteArtDetail
 } = require("../controller/artform/artDetailController");
 
@@ -63,6 +64,14 @@ router.post(
   restrictTo("admin"),
   uploadArtFormImage.none(), // Required to parse multipart/form-data when no files are uploaded
   createArtDetail
+);
+
+router.put(
+  "/details/:id",
+  protectRoute,
+  restrictTo("admin"),
+  uploadArtFormImage.none(),
+  updateArtDetail
 );
 
 router.delete(
