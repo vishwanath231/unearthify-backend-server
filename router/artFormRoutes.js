@@ -18,7 +18,7 @@ const {
   createArtDetail,
   getAllArtDetails,
   getArtDetailById,
-  updateArtDetail,
+  updateArtDetail,  
   deleteArtDetail
 } = require("../controller/artform/artDetailController");
 
