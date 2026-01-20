@@ -168,6 +168,18 @@ const deleteCategory = async (req, res) => {
       return res.status(404).json({ success: false, message: "Category not found" });
     }
 
+    // 3. delete image from cloudinary
+    if (category.imageId) {
+      await cloudinary.uploader.destroy(category.imageId);
+    }
+
+    // delete all art type images
+    for (const artType of category.artTypes) {
+      if (artType.imageId) {
+        await cloudinary.uploader.destroy(artType.imageId);
+      }
+    }
+    
     await ArtCategory.findByIdAndDelete(id);
 
     res.status(200).json({
