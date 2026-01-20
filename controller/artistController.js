@@ -76,13 +76,13 @@ const createArtist = async (req, res) => {
     res.status(201).json({ message: "Artist created", data: newArtist });
 
   } catch (error) {
-  console.error("CREATE ARTIST ERROR:", error);
-  res.status(500).json({
-    message: error.message,
-    stack: error.stack,
-    name: error.name
-  });
-}
+    console.error("CREATE ARTIST ERROR:", error);
+    res.status(500).json({
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+  }
 };
 
 // Update artist by ID
