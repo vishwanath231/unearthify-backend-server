@@ -31,6 +31,10 @@ const ArtistSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    imageId: {
+      type: String,
+      required: true,
+    },
     bio: {
       type: String,
       required: true,
@@ -41,7 +45,8 @@ const ArtistSchema = new mongoose.Schema(
     },
     collection: [
       {
-        type: String,
+        url: { type: String, required: true },
+        imageId: { type: String, required: true },
       },
     ],
     status: {

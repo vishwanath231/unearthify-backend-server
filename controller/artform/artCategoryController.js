@@ -1,4 +1,6 @@
+const uploadToCloudinary = require("../../middleware/cloudinaryUpload");
 const ArtCategory = require("../../model/ArtCategory");
+const cloudinary = require("../../config/cloudinary");
 
 // Create a new Art Category with Art Types
 // const createCategory = async (req, res) => {
@@ -70,50 +72,70 @@ const ArtCategory = require("../../model/ArtCategory");
 //   }
 // };
 
-    const createCategory = async (req, res) => {
+const createCategory = async (req, res) => {
   try {
     const { categoryName, categoryDescription } = req.body;
     let { artTypes } = req.body;
 
-    if (typeof artTypes === "string") {
-      artTypes = JSON.parse(artTypes);
+    if (!artTypes) artTypes = [];
+    if (typeof artTypes === "string") artTypes = JSON.parse(artTypes);
+
+    if (!req.files?.categoryImage?.length) {
+      return res.status(400).json({ message: "Category image required" });
     }
 
-    if (!req.files?.image || req.files.image.length === 0) {
-      return res.status(400).json({ success: false, message: "Art type images are required." });
+    const catRes = await uploadToCloudinary(
+      req.files.categoryImage[0].buffer,
+      "categories"
+    );
+
+    let artTypeArr = [];
+
+    if (artTypes.length > 0) {
+      if (!req.files?.image || req.files.image.length !== artTypes.length) {
+        return res.status(400).json({
+          message: "Art types & images count mismatch"
+        });
+      }
+
+      artTypeArr = await Promise.all(
+        artTypes.map(async (type, index) => {
+          const imgRes = await uploadToCloudinary(
+            req.files.image[index].buffer,
+            "categories_types"
+          );
+
+          return {
+            name: type.name,
+            description: type.description,
+            image: imgRes.secure_url,
+            imageId: imgRes.public_id
+          };
+        })
+      );
     }
-
-    if (!req.files?.categoryImage || req.files.categoryImage.length === 0) {
-    return res.status(400).json({ success: false, message: "Category image is required." });
-    }
-
-    if (req.files.image.length !== artTypes.length) {
-      return res.status(400).json({ message: "Art types & images mismatch" });
-    }
-
-    const categoryImage = `/api/artFormImage/${req.files.categoryImage[0].filename}`;
-
-    const processedArtTypes = artTypes.map((type, index) => ({
-        name: type.name,
-        description: type.description,
-        image: `/api/artFormImage/${req.files.image[index].filename}`
-    }));
 
     const newCategory = new ArtCategory({
-        name: categoryName,
-        description: categoryDescription,
-        image: categoryImage,
-        artTypes: processedArtTypes,
+      name: categoryName,
+      description: categoryDescription,
+      image: catRes.secure_url,
+      imageId: catRes.public_id,
+      artTypes: artTypeArr
     });
 
     await newCategory.save();
 
-    res.status(201).json({ success: true, data: newCategory });
-  } catch (e) {
-    res.status(500).json({ message: "Create failed", error: e.message });
-}
-}
+    res.status(201).json({
+      success: true,
+      message: "Category created",
+      data: newCategory
+    });
 
+  } catch (e) {
+    console.error("CREATE CATEGORY ERROR:", e);
+    res.status(500).json({ message: "Create failed", error: e.message });
+  }
+};
 
 // Get all categories (useful for the dropdown in Details page)
 const getAllCategories = async (req, res) => {
@@ -167,19 +189,39 @@ const addArtTypeToCategory = async (req, res) => {
     const { categoryId } = req.params;
     let { artTypes } = req.body;
 
+    if (!artTypes) {
+      return res.status(400).json({ message: "artTypes required" });
+    }
+
     if (typeof artTypes === "string") {
       artTypes = JSON.parse(artTypes);
     }
 
-    if (!req.files || req.files.length === 0) {
+    if (!req.files?.length) {
       return res.status(400).json({ message: "Art type images required" });
     }
 
-    const newArtTypes = artTypes.map((type, index) => ({
-      name: type.name,
-      description: type.description,
-      image: `/api/artFormImage/${req.files[index].filename}`,
-    }));
+    if (artTypes.length !== req.files.length) {
+      return res.status(400).json({
+        message: "Art types & images count mismatch"
+      });
+    }
+
+    const newArtTypes = await Promise.all(
+      artTypes.map(async (type, index) => {
+        const imgRes = await uploadToCloudinary(
+          req.files[index].buffer,
+          "categories_types"
+        );
+
+        return {
+          name: type.name,
+          description: type.description,
+          image: imgRes.secure_url,
+          imageId: imgRes.public_id
+        };
+      })
+    );
 
     const updated = await ArtCategory.findByIdAndUpdate(
       categoryId,
@@ -196,12 +238,15 @@ const addArtTypeToCategory = async (req, res) => {
       message: "Art type added",
       data: updated,
     });
+
   } catch (err) {
+    console.error("ADD ART TYPE ERROR:", err);
     res.status(500).json({ message: "Add art type failed", error: err.message });
   }
 };
 
 // UPDATE ART TYPE INSIDE CATEGORY
+
 const updateArtTypeInCategory = async (req, res) => {
   try {
     const { categoryId, artTypeId } = req.params;
@@ -223,7 +268,20 @@ const updateArtTypeInCategory = async (req, res) => {
 
     // update image if new one uploaded
     if (req.files?.image?.[0]) {
-      artType.image = `/api/artFormImage/${req.files.image[0].filename}`;
+
+      // delete old image from cloudinary
+      if (artType.imageId) {
+        await cloudinary.uploader.destroy(artType.imageId);
+      }
+
+      // upload new image
+      const imgRes = await uploadToCloudinary(
+        req.files.image[0].buffer,
+        "categories_types"
+      );
+
+      artType.image = imgRes.secure_url;
+      artType.imageId = imgRes.public_id;
     }
 
     await category.save();
@@ -244,26 +302,39 @@ const deleteArtType = async (req, res) => {
   try {
     const { categoryId, artTypeId } = req.params;
 
-    const updated = await ArtCategory.findByIdAndUpdate(
-      categoryId,
-      { $pull: { artTypes: { _id: artTypeId } } },
-      { new: true }
-    );
-
-    if (!updated) {
+    // 1. find category first
+    const category = await ArtCategory.findById(categoryId);
+    if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
 
+    // 2. find art type
+    const artType = category.artTypes.id(artTypeId);
+    if (!artType) {
+      return res.status(404).json({ message: "Art type not found" });
+    }
+
+    // 3. delete image from cloudinary
+    if (artType.imageId) {
+      await cloudinary.uploader.destroy(artType.imageId);
+    }
+
+    // 4. remove art type from array
+    artType.deleteOne(); // or artType.remove()
+
+    // 5. save category
+    await category.save();
+
     res.status(200).json({
       success: true,
-      message: "Art type deleted",
-      data: updated
+      message: "Art type deleted successfully"
     });
+
   } catch (error) {
+    console.error("DELETE ART TYPE ERROR:", error);
     res.status(500).json({ message: "Delete failed", error: error.message });
   }
 };
-
 
 module.exports = {
   createCategory,

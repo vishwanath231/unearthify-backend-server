@@ -1,6 +1,6 @@
 const Artist = require("../model/Artist");
-const fs = require('fs');
-const path = require('path');
+const cloudinary = require("../config/cloudinary");
+const uploadToCloudinary = require("../middleware/cloudinaryUpload");
 
 // Get all artists
 const getAllArtists = async (req, res) => {
@@ -39,18 +39,24 @@ const getArtistById = async (req, res) => {
 const createArtist = async (req, res) => {
   try {
     const { name, artForm, city, state, country, bio } = req.body;
-    
-    // Construct main image URL
-    const image = req.files && req.files.image ? `/api/uploadArtistImage/${req.files.image[0].filename}` : null;
-    
-    if (!image) {
-        return res.status(400).json({ message: "Artist main image is required" });
+
+    if (!req.files?.image?.[0]) {
+      return res.status(400).json({ message: "Artist main image is required" });
     }
 
-    // Construct collection image URLs
-    const collection = req.files && req.files.collection 
-      ? req.files.collection.map(file => `/api/uploadArtistImage/${file.filename}`)
-      : [];
+    // upload main image
+    const mainImg = await uploadToCloudinary(req.files.image[0].buffer, "artists");
+
+    // upload collection
+    let collection = [];
+    if (req.files?.collection?.length) {
+      collection = await Promise.all(
+        req.files.collection.map(async (file) => {
+          const res = await uploadToCloudinary(file.buffer, "artists_collection");
+          return { url: res.secure_url, imageId: res.public_id };
+        })
+      );
+    }
 
     const newArtist = new Artist({
       name,
@@ -59,19 +65,17 @@ const createArtist = async (req, res) => {
       state,
       country,
       bio,
-      image,
-      collection,
+      image: mainImg.secure_url,
+      imageId: mainImg.public_id,
+      collection
     });
 
     await newArtist.save();
 
-    res.status(201).json({
-      message: "Artist created successfully",
-      data: newArtist,
-    });
+    res.status(201).json({ message: "Artist created", data: newArtist });
+
   } catch (error) {
-    // If validation fails, we might want to delete the uploaded file to save space, 
-    // but for now keeping it simple.
+    console.error("CREATE ARTIST ERROR:", error);
     res.status(500).json({ message: "Error creating artist", error: error.message });
   }
 };
@@ -98,15 +102,28 @@ const updateArtistById = async (req, res) => {
     if (isFeatured !== undefined) artist.isFeatured = isFeatured;
 
     // Handle Main Image Update
-    if (req.files && req.files.image) {
-      artist.image = `/api/uploadArtistImage/${req.files.image[0].filename}`;
+    if (req.files?.image?.[0]) {
+
+      if (artist.imageId) {
+        await cloudinary.uploader.destroy(artist.imageId);
+      }
+
+      const imgRes = await uploadToCloudinary(req.files.image[0].buffer, "artists");
+
+      artist.image = imgRes.secure_url;
+      artist.imageId = imgRes.public_id;
     }
 
     // Handle Collection Images Update (Append or Replace)
-    if (req.files && req.files.collection) {
-      const newCollectionImages = req.files.collection.map(file => `/api/uploadArtistImage/${file.filename}`);
-      // For now, we'll append to the collection. In a real app, you might want more control.
-      artist.collection = [...artist.collection, ...newCollectionImages];
+    if (req.files?.collection?.length) {
+      const uploaded = await Promise.all(
+        req.files.collection.map(async (file) => {
+          const res = await uploadToCloudinary(file.buffer, "artists_collection");
+          return { url: res.secure_url, imageId: res.public_id };
+        })
+      );
+
+      artist.collection.push(...uploaded);
     }
 
     await artist.save();
@@ -124,16 +141,23 @@ const updateArtistById = async (req, res) => {
 const deleteArtistById = async (req, res) => {
   try {
     const { id } = req.params;
-    const artist = await Artist.findByIdAndDelete(id);
 
+    const artist = await Artist.findById(id);
     if (!artist) {
       return res.status(404).json({ message: "Artist not found" });
     }
-    
-    // Optional: Delete image file from filesystem
-    // const imagePath = path.join(__dirname, '..', 'uploadArtistImage', path.basename(artist.image));
-    // if(fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
 
+    if (artist.imageId) {
+      await cloudinary.uploader.destroy(artist.imageId);
+    }
+
+    for (const img of artist.collection) {
+      if (img.imageId) {
+        await cloudinary.uploader.destroy(img.imageId);
+      }
+    }
+
+    await artist.deleteOne();
     res.json({ message: "Artist deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting artist", error: error.message });

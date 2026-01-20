@@ -27,7 +27,11 @@ const EventSchema = new mongoose.Schema(
     categories:{
       type: String,
       required:true
-    }
+    },
+    imageId: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

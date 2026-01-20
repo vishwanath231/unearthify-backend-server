@@ -9,7 +9,7 @@ const {
   deleteEventById,
 } = require("../controller/eventController");
 const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
-const { uploadEventImage } = require("../middleware/uploadMiddleware");
+const upload = require("../middleware/upload");
 
 // Public routes
 router.get("/events", getAllEvents);
@@ -21,7 +21,7 @@ router.post(
   "/events",
   protectRoute,
   restrictTo("admin"),
-  uploadEventImage.single("image"),
+  upload.single("image"),
   createEvent
 );
 
@@ -29,7 +29,7 @@ router.put(
   "/events/:id",
   protectRoute,
   restrictTo("admin"),
-  uploadEventImage.single("image"),
+  upload.single("image"),
   updateEventById
 );
 

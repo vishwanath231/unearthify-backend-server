@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { uploadArtFormImage } = require("../middleware/uploadMiddleware");
 const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
-
+const upload = require("../middleware/upload");
+const uploadToCloudinary = require("../middleware/cloudinaryUpload")
 // Import New Controllers
 const {
   createCategory,
@@ -37,7 +37,7 @@ router.post(
   "/categories",
   protectRoute,
   restrictTo("admin"), // Uncomment protecting later if needed, user didn't specify authentication reqs but usually yes.
-  uploadArtFormImage.fields([
+  upload.fields([
     { name: "categoryImage", maxCount: 1 },
     { name: "image", maxCount: 20 }
   ]), // "image" matches the Postman key (can handle multiple files with same key)
@@ -55,7 +55,7 @@ router.put(
   "/categories/:categoryId/arttype/:artTypeId",
   protectRoute,
   restrictTo("admin"),
-  uploadArtFormImage.fields([{ name: "image", maxCount: 1 }]),
+  upload.fields([{ name: "image", maxCount: 1 }]),
   updateArtTypeInCategory
 );
 
@@ -70,7 +70,7 @@ router.post(
   "/categories/:categoryId/arttype",
   protectRoute,
   restrictTo("admin"),
-  uploadArtFormImage.array("image", 20),
+  upload.array("image", 20),
   addArtTypeToCategory
 );
 
@@ -87,7 +87,7 @@ router.post(
   "/details",
   protectRoute,
   restrictTo("admin"),
-  uploadArtFormImage.none(), // Required to parse multipart/form-data when no files are uploaded
+  upload.none(), // Required to parse multipart/form-data when no files are uploaded
   createArtDetail
 );
 
@@ -95,7 +95,7 @@ router.put(
   "/details/:id",
   protectRoute,
   restrictTo("admin"),
-  uploadArtFormImage.none(),
+  upload.none(),
   updateArtDetail
 );
 

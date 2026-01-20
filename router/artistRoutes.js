@@ -12,7 +12,7 @@ const {
 } = require("../controller/artistController");
 
 const { protectRoute, restrictTo } = require("../middleware/authMiddleware");
-const { uploadArtistImage } = require("../middleware/uploadMiddleware");
+const upload = require("../middleware/upload");
 
 /**
  * Public Routes
@@ -36,7 +36,7 @@ router.post(
   "/artists",
   protectRoute,
   restrictTo("admin"),
-  uploadArtistImage.fields([
+  upload.fields([
     { name: "image", maxCount: 1 },
     { name: "collection", maxCount: 10 },
   ]),
@@ -48,7 +48,7 @@ router.put(
   "/artists/:id",
   protectRoute,
   restrictTo("admin"),
-  uploadArtistImage.fields([
+  upload.fields([
     { name: "image", maxCount: 1 },
     { name: "collection", maxCount: 10 },
   ]),

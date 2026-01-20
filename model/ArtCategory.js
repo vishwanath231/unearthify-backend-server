@@ -13,7 +13,11 @@ const ArtTypeSchema = new mongoose.Schema({
   image: {
     type: String, // Path to the uploaded image
     required: true
-  }
+  },
+  imageId: {
+    type: String,
+    required: true
+  },
 });
 
 const ArtCategorySchema = new mongoose.Schema(
@@ -31,6 +35,10 @@ const ArtCategorySchema = new mongoose.Schema(
     image: {
       type: String,
       required: true   // CATEGORY IMAGE
+    },
+    imageId: {
+      type: String,
+      required: true
     },
     artTypes: [ArtTypeSchema], // Array of Art Types
   },
