@@ -1,6 +1,7 @@
 const Artist = require("../model/Artist");
 const cloudinary = require("../config/cloudinary");
 const uploadToCloudinary = require("../middleware/cloudinaryUpload");
+const mongoose = require("mongoose");
 
 // Get all artists
 const getAllArtists = async (req, res) => {
@@ -142,6 +143,10 @@ const deleteArtistById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid artist id" });
+    }
+
     const artist = await Artist.findById(id);
     if (!artist) {
       return res.status(404).json({ message: "Artist not found" });
@@ -170,6 +175,7 @@ const deleteArtistById = async (req, res) => {
     await Artist.findByIdAndDelete(id);
     res.json({ message: "Artist deleted successfully" });
   } catch (error) {
+    console.error("DELETE ARTIST ERROR:", error);
     res.status(500).json({ message: "Error deleting artist", error: error.message });
   }
 };
