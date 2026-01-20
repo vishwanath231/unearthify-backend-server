@@ -148,16 +148,26 @@ const deleteArtistById = async (req, res) => {
     }
 
     if (artist.imageId) {
-      await cloudinary.uploader.destroy(artist.imageId);
-    }
-
-    for (const img of artist.collection) {
-      if (img.imageId) {
-        await cloudinary.uploader.destroy(img.imageId);
+      try {
+        await cloudinary.uploader.destroy(artist.imageId);
+      } catch (err) {
+        console.error("Cloudinary main image delete failed:", err.message);
       }
     }
 
-    await artist.deleteOne();
+    if (Array.isArray(artist.collection)) {
+      for (const img of artist.collection) {
+        if (img.imageId) {
+          try {
+            await cloudinary.uploader.destroy(img.imageId);
+          } catch (err) {
+            console.error("Cloudinary collection delete failed:", err.message);
+          }
+        }
+      }
+    }
+
+    await Artist.findByIdAndDelete(id);
     res.json({ message: "Artist deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting artist", error: error.message });
