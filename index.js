@@ -15,6 +15,7 @@ const router = require("./router/registerRoutes");
 const routerFam = require("./router/family");
 
 // Import new routers for the main application
+const dashboardRoutes = require("./router/dashboardRoutes")
 const artistRoutes = require("./router/artistRoutes");
 const eventRoutes = require("./router/eventRoutes");
 const artFormRoutes = require("./router/artFormRoutes");
@@ -61,6 +62,7 @@ app.get("/", (req, res) => {
 });
 
 // Define the routes - New API routes
+app.use("/api", dashboardRoutes);    // dashboard routes
 app.use("/api", artistRoutes);      // Artist routes
 app.use("/api", eventRoutes);       // Event routes
 app.use("/api", artFormRoutes);     // Art Form routes
