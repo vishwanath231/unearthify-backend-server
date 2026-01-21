@@ -3,16 +3,18 @@ const Category = require("../model/ArtCategory");
 const Event = require("../model/Event");
 const Contribute = require("../model/Contribute");
 const Application = require("../model/Application");
+const EventApplication = require("../model/EventApplication");
 
 const getDashboardCounts = async (req, res) => {
   try {
-    const [artistCount, categories, eventCount, contributionCount, applicationCount] =
+    const [artistCount, categories, eventCount, contributionCount, artFormApplicationCount,eventApplicationCount] =
       await Promise.all([
         Artist.countDocuments(),
         Category.find({}, { artTypes: 1 }),
         Event.countDocuments(),
         Contribute.countDocuments(),
-        Application.countDocuments()
+        Application.countDocuments(),
+        EventApplication.countDocuments() 
       ]);
 
     // count embedded artTypes
@@ -28,7 +30,10 @@ const getDashboardCounts = async (req, res) => {
       artTypes: artTypeCount,
       events: eventCount,
       contributions: contributionCount,
-      applications: applicationCount
+      applications: {
+        artForms: artFormApplicationCount,
+        events: eventApplicationCount
+      }
     });
 
   } catch (error) {
