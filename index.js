@@ -21,6 +21,7 @@ const eventRoutes = require("./router/eventRoutes");
 const artFormRoutes = require("./router/artFormRoutes");
 const contributeRoutes = require("./router/contributeRoutes");
 const applicationRoutes = require("./router/applicationRoutes");
+const eventApplicationRoutes = require("./router/eventApplicationRoutes");
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use("/api", artFormRoutes);     // Art Form routes
 
 app.use("/api", contributeRoutes); // Contribution routes
 app.use("/api", applicationRoutes); // Application routes
+app.use("/api", eventApplicationRoutes); // Event Application routes
 
 // Existing routes
 app.use("/api", router);            // Main API routes
